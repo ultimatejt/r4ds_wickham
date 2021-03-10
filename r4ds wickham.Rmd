@@ -1,0 +1,1275 @@
+---
+title: "Untitled"
+author: "Jacques Taschereau"
+date: '2018-08-27'
+output: pdf_document
+---
+MPG DATASET
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggvis)
+library(nycflights13)
+library(babynames)
+library(nasaweather)
+require(fueleconomy)
+library(Lahman)
+library(VGAM)
+library(gutenbergr)
+library(modelr)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(autodep = TRUE)
+```
+
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg)
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = cyl, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = class, y = drv))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = cyl<6))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = cyl))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ class, nrow = 2)
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(cyl ~ drv)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+```{r}
+#left
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+# right
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth() +
+  geom_point(mapping = aes(color = class))
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = TRUE)
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = drv)) +
+  geom_smooth(mapping = aes(color = drv), se = FALSE)
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = drv)) +
+  geom_smooth(se = FALSE)
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = drv)) +
+  geom_smooth(mapping = aes(linetype = drv), se = FALSE)
+```
+
+DIAMONDS DATASET
+
+```{r}
+diamonds
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = color))
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = color), position = "fill")
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = color), position = "dodge")
+```
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, y = carat)) +
+  geom_boxplot() + 
+  coord_flip()
+```
+
+```{r}
+seq(1, 10)
+```
+
+INTRO TO DPLYR (DATA TRANSFORMATION)
+```{r}
+nycflights13::flights
+View(flights)
+```
+
+1 - filter()
+this allows to subset observations, quicly and efficiently
+
+```{r}
+jan1_flights <- filter(flights, month == 1, day == 1)
+```
+
+```{r}
+myNewFilter <- filter(flights, air_time < 300 & air_time > 200, dep_delay < 2 & dep_delay > -2, arr_delay < 2 & arr_delay > -2)
+myNewFilter
+```
+
+```{r}
+filter(flights, arr_delay >= 120)
+```
+
+```{r}
+filter(flights, dest == "IAH" | dest == "HOU")
+```
+
+```{r}
+filter(flights, carrier == "UA" | carrier == "AA" | carrier == "DL")
+```
+
+```{r}
+filter(flights, month %in% c(6, 7, 8, 9))
+```
+
+```{r}
+filter(flights, arr_delay >= 120 & dep_delay == 0)
+```
+
+```{r}
+filter(flights, dep_delay > 60 & arr_delay <= -30)
+```
+
+```{r}
+filter(flights, dep_time >= 0 & dep_time <= 600)
+```
+
+2 - arrange()
+this allows to change row order, working as a sorting tool for specific columns
+
+```{r}
+arrange(flights, year, month, day)
+```
+
+```{r}
+arrange(flights, desc(dep_delay))
+```
+
+```{r}
+arrange(flights, desc(arr_delay))
+```
+
+```{r}
+arrange(flights, dep_delay, desc(dep_delay))
+```
+
+```{r}
+arrange(flights, air_time, desc(air_time))
+```
+
+```{r}
+arrange(flights, desc(distance))
+```
+
+```{r}
+arrange(flights, distance, desc(distance))
+```
+
+3 - select()
+Zooming in on subsets with large datasets
+
+```{r}
+select(flights, contains("dep"))
+```
+
+```{r}
+select(flights, contains("TIME"))
+```
+
+```{r}
+select(flights, time_hour, air_time, everything())
+```
+
+5 - mutate()
+transforming columns into modified ones
+
+```{r}
+flights_narrow <- select(flights,
+                         year:day,
+                         ends_with("delay"),
+                         distance,
+                         air_time, 
+                         flight,
+                         carrier)
+mutate(flights_narrow,
+       gain_time = dep_delay - arr_delay,
+       avg_speed_mph = distance / air_time * 60)
+```
+
+```{r}
+mutate(flights_narrow, 
+       gain_time = dep_delay - arr_delay,
+       hours = air_time / 60,
+       gain_per_hour = gain_time /hours)
+```
+
+```{r}
+transmute(flights_narrow, 
+       gain_time = dep_delay - arr_delay,
+       hours = air_time / 60,
+       avg_speed_mph = distance / air_time * 60,
+       gain_per_hour = gain_time /hours)
+```
+
+```{r}
+myNewMetricMutant <- mutate(flights_narrow, 
+       gain_time = dep_delay - arr_delay,
+       hours = air_time / 60,
+       avg_speed_mph = distance / air_time * 60,
+       gain_per_hour = gain_time /hours)
+arrange(myNewMetricMutant, desc(gain_time))
+arrange(myNewMetricMutant, desc(gain_per_hour))
+```
+
+```{r}
+transmute(flights,
+  dep_time,
+  hour = dep_time %/% 100,
+  minute = dep_time %% 100
+)
+
+flights %>% transmute(
+  dep_time,
+  hour = dep_time %/% 100,
+  minute = dep_time %% 100
+)
+```
+
+```{r}
+transmute(flights,
+  air_time,
+  gain_time = arr_time - dep_time
+)
+```
+
+6 - summarise()
+This allows quick summaries
+
+```{r}
+by_day <- group_by(flights, year, month, day)
+myTbl <- summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+myTbl %>% arrange(delay, desc(delay))
+```
+
+```{r}
+ggplot(myTbl, mapping = aes(x = month, y = delay)) +
+  geom_point() +
+  geom_smooth(se = F)
+```
+
+```{r}
+by_dest <- group_by(flights, dest)
+delay <- summarise(by_dest,
+  count = n(),
+  dist = mean(distance, na.rm = TRUE),
+  delay = mean(arr_delay, na.rm = TRUE)
+)
+delay <- filter(delay, count > 20, dest != "HNL")
+delay
+```
+
+```{r}
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 1/3) +
+  geom_smooth(se = FALSE) + 
+  geom_vline(xintercept = 750)
+```
+
+```{r}
+delays <- flights %>% 
+  group_by(dest) %>% 
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)
+  ) %>% 
+  filter(count > 20, dest != "HNL")
+```
+
+```{r}
+not_cancelled <- flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+```
+
+
+```{r}
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay)
+  )
+
+ggplot(data = delays, mapping = aes(x = delay)) + 
+  geom_freqpoly(binwidth = 10)
+```
+
+```{r}
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+```
+
+```{r}
+delays %>% 
+  filter(n > 30) %>% 
+  ggplot(mapping = aes(x = n, y = delay)) + 
+    geom_point(alpha = 1/10)
+```
+### Ch 10: Tibbles
+```{r}
+as_tibble(iris)
+#non-syntactic names are to be placed into `col`
+
+tb <- tibble(
+  `:)` = "smile", 
+  ` ` = "space",
+  `2000` = "number"
+)
+tb
+
+#print(mtcars)
+is_tibble(mtcars)
+
+df <- data.frame(abc = 1, xyz = "a")
+df$x
+df[, "xyz"]
+df[, c("abc", "xyz")]
+
+table1
+table2
+table3
+
+table4a
+table4b
+
+tidy4a <- table4a %>% 
+  pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "cases")
+tidy4b <- table4b %>% 
+  pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "population")
+left_join(tidy4a, tidy4b, by = c("country", "year"))  #merge(x, y, by=key) yields a dataframe
+
+table2 %>% 
+  pivot_wider(names_from = type, values_from = count)
+
+table3 %>% 
+  separate(rate, into = c("cases", "population"), convert = TRUE)
+
+table5 %>% 
+  unite(new, century, year, sep = "")
+
+```
+
+```{r}
+data("who")
+
+who_ft <- who %>% 
+  pivot_longer(
+    cols = new_sp_m014:newrel_f65,
+    names_to = "key",
+    values_to = "cases",
+    values_drop_na = T)
+#keys are generated from new or newrel & TB type & fem or male & age group
+who_ft %>% 
+  count(key)
+
+who_ft <- who_ft %>% 
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel"))
+
+who_ft <- who_ft %>% 
+  separate(key, c("new", "type", "sexage"), sep = "_")
+
+who_ft <- who_ft %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+
+who_ft <- who_ft %>% 
+  select(-new, -iso2, -iso3)
+
+who_ft_m <- who_ft %>% 
+  filter(sex == "m")    
+
+ggplot(who_ft_m, aes(x = year, y = cases)) +
+  geom_point() +
+  geom_smooth()
+
+who_ft_f <- who_ft %>% 
+  filter(sex == "f")
+
+ggplot(who_ft_f, aes(x = year, y = cases)) +
+  geom_point() +
+  geom_smooth()
+
+who_ft_years <- who_ft %>% 
+  group_by(year) %>% 
+  mutate(cases_by_year = sum(cases))
+
+ggplot(who_ft_years, aes(x = year, y = cases_by_year/10^6)) +
+  geom_point() +
+  geom_smooth()
+
+```
+```{r}
+
+#primary key = native to table, uniquely defines rows
+#foreign key = native to foreign table, not necessarily unique
+#ex planes$tailnum is primary
+#ex flights$tailnum is foreign
+
+#surrogate key is synthethic when there is no primary key  
+
+nycflights <- data("nycflights13")
+str(flights)
+
+planes %>% 
+  count(tailnum) %>% 
+  filter(n > 1)
+
+weather %>% 
+  count(year, month, day, hour, origin) %>% 
+  filter(n > 1)
+
+weather %>% 
+  filter(
+    year == 2013,
+    month == 11,
+    day == 3,
+    hour == 1)
+
+flights %>% 
+  mutate(key = row_number()) %>% 
+  select(key, everything())
+
+#identifying keys in datasets below
+
+Lahman::Batting %>% 
+  count(playerID, yearID, stint) %>% 
+  filter(n > 1)
+#each batter is uniquely identified by the player ID, year ID and stint
+
+babynames::babynames %>% 
+  count(year, sex, name) %>% 
+  filter(n > 1)
+#each babyname is unique to its year, sex and name
+
+nasaweather::atmos %>% 
+  count(lat, long, year, month) %>% 
+  filter(n > 1)
+#lat-long + year-mon bundles make it unique
+
+fueleconomy::vehicles %>% 
+  count(id) %>% 
+  filter(n > 1)
+
+ggplot2::diamonds %>% 
+  count(x, y, z, carat, color, cut, price, depth, table, clarity) %>% 
+  filter(n > 1)
+
+ggplot2::diamonds %>% 
+  filter(x == 0.00,
+         y == 0.00,
+         z == 0.00,
+         carat == 0.71,
+         color == "F",
+         cut == "Good",
+         depth == 64.1,
+         table == 60,
+         clarity == "SI2",
+         price == 2130
+         )
+#there are duplicates in this dataset
+
+```
+
+```{r}
+require(maps)
+
+flights_2 <- flights %>% 
+  select(year:day, hour, origin, dest, tailnum, carrier)
+
+flights_2 %>% 
+  select(-origin, -dest) %>% 
+  left_join(airlines, by = "carrier")
+
+#conceptually this is a mutating join. here's why
+flights_2 %>% 
+  select(-origin, -dest) %>% 
+  mutate(name = airlines$name[match(carrier, airlines$carrier)])
+
+flights_2 %>% 
+  left_join(weather)
+
+flights_2 %>% 
+  left_join(planes, by = "tailnum", suffix = c(".flights", ".planes"))
+
+flights_2 %>% 
+  left_join(airports, c("dest" = "faa"))
+
+flights_2 %>% 
+  left_join(airports, c("origin" = "faa"))
+
+by_day <- group_by(flights, year, month, day)
+myTbl <- summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+myTbl %>% arrange(delay, desc(delay))
+
+flights_for_delay <- flights %>% 
+  group_by(dest) %>% 
+  summarise(dep_delay = mean(dep_delay, na.rm = T),
+            arr_delay = mean(arr_delay, na.rm = T)) %>% 
+  arrange(dep_delay, desc(dep_delay))
+
+airports %>% 
+  semi_join(flights_for_delay, c("faa" = "dest"))
+
+flights_for_delay_2 <- flights_for_delay %>% 
+  inner_join(airports, by = c("dest" = "faa"))
+
+airports %>%
+  semi_join(flights, c("faa" = "dest")) %>%
+  ggplot(aes(lon, lat)) +
+    borders("state") +
+    geom_point(aes(color = flights_for_delay_2$arr_delay)) +
+    coord_quickmap()
+
+flights_dest <- flights %>% 
+  left_join(airports, c("dest" = "faa"), suffix = c(".flights",".destjoin"))
+
+flights_dest_ori <- flights_dest %>% 
+  left_join(airports, c("origin" = "faa"), suffix = c(".flights",".orijoin"))
+
+flights_for_plane_age <- flights %>%
+  left_join(planes, by = "tailnum", suffix = c(".flights", ".planes"))
+
+flights_for_plane_age <- flights_for_plane_age %>% 
+  group_by(year.planes) %>% 
+  mutate(dep_delay = mean(dep_delay, na.rm = T),
+         arr_delay = mean(arr_delay, na.rm = T))
+
+
+ggplot(flights_for_plane_age, mapping = aes(x = year.planes, y = dep_delay)) +
+  geom_point() +
+  geom_smooth(se = F)
+
+ggplot(flights_for_plane_age, mapping = aes(x = year.planes, y = arr_delay)) +
+  geom_point() +
+  geom_smooth(se = F)
+
+flights_and_weather <- flights %>% 
+  left_join(weather)
+
+ggplot(flights_and_weather, aes(x=arr_delay, y=humid)) + 
+  geom_point(size = .5)
+
+ggplot(flights_and_weather, aes(x=arr_delay, y=humid)) + 
+  geom_point(size = .5)
+
+#ggpairs(flights_and_weather[, c(7, 9, 20, 22, 26, 27, 28)])
+
+flights_for_tailnum <- flights_2 %>% 
+  left_join(planes, by = "tailnum", suffix = c(".flights", ".planes")) 
+
+planes %>% 
+  count(tailnum) %>% 
+  mutate(sum = sum(n))
+
+#2512 NA's
+flights %>% 
+  anti_join(planes, by = "tailnum") %>% 
+  count(tailnum) %>%
+  mutate(sum = sum(n)) %>% 
+  arrange(n, desc(n))
+
+flights_for_tailnum %>% 
+  group_by(tailnum) %>% 
+  count(tailnum) %>% 
+  mutate(sum(n))
+  
+  count(tailnum.flights) %>% 
+  arrange(n, desc(n))
+
+flights %>% 
+  mutate(day_number = lubridate::yday(time_hour)) %>% 
+  group_by(day_number) %>% 
+  summarise(cancellations = sum(is.na(dep_delay))) %>%
+  count(cancellations) %>% 
+  mutate(sum_cancelled = sum(cancellations))
+  
+flights %>% 
+  mutate(day_number = lubridate::yday(time_hour)) %>% 
+  group_by(day_number) %>% 
+  summarise(cancellations = sum(is.na(dep_delay))) %>% 
+  mutate(date = lubridate::as_date(day_number, 
+                                   origin = "2013-01-01")) %>% 
+  ggplot(aes(x = date, y = cancellations)) +
+    geom_line() +
+    labs(x = NULL)
+
+flights_over100 <- flights %>% 
+  anti_join(planes, by = "tailnum") %>% 
+  count(tailnum, sort = TRUE) %>% 
+  filter(n > 100)
+
+fueleconomy::vehicles %>% 
+  count(id) %>% 
+  filter(n > 1)
+
+vehicles %>% 
+  semi_join(common)
+
+str(vehicles)
+
+worst_hours <- flights %>% 
+  mutate(
+    hour = sched_dep_time %/% 100) %>% 
+    group_by(origin, year, month, day, hour) %>% 
+    summarise(
+      arr_delay = mean(arr_delay, na.rm = T),
+      dep_delay = mean(dep_delay, na.rm = T)) %>%
+    ungroup() %>%
+    arrange(desc(arr_delay)) %>% 
+    slice(1:48)
+  
+weather_most_delayed <- semi_join(weather, worst_hours, 
+                                  by = c("origin", "year",
+                                         "month", "day", "hour"))
+
+ggplot(weather_most_delayed, aes(x = precip, y = wind_speed, color = temp)) +
+  geom_point(size = 2)
+
+aj_1 <- anti_join(flights, airports, c("dest"="faa"))
+aj_2 <- anti_join(airports, flights, c("faa"="dest"))
+
+ct_1 <- flights %>% 
+  count(tailnum, carrier) %>% 
+  filter(n > 1)
+
+ct_2 <- flights %>% 
+  count(tailnum) %>% 
+  filter(n > 1)
+
+plane_and_air <- anti_join(ct_1, ct_2, by = "n")
+
+planes_carriers <-
+  flights %>%
+  filter(!is.na(tailnum)) %>%
+  distinct(tailnum, carrier)
+
+planes_carriers %>%
+  count(tailnum) %>%
+  filter(n > 1) %>%
+  nrow()
+
+carrier_transfer_tbl <- planes_carriers %>%
+  # keep only planes which have flown for more than one airline
+  group_by(tailnum) %>%
+  filter(n() > 1) %>%
+  # join with airlines to get airline names
+  left_join(airlines, by = "carrier") %>%
+  arrange(tailnum, carrier)
+carrier_transfer_tbl
+
+```
+```{r}
+#intro to string manipulation
+str_length(c("a", "R for Data Science", NA))
+
+str_c("x", "y", "z")
+
+str_c("x", "y", "z", sep = ",")
+
+#collapse only works on vectors!
+str_c(c("x", "y", "z"), collapse = ", ")
+
+x <- c("Apple", "Banana", "Pear")
+
+str_sub(x, 1, 3)
+
+str_to_upper(c("i", "ı"), locale = "tr")
+
+#used in conjunction w cat(str_wrap(text, width = 10), "\n") makes the text be separated into paragraphs of fixed width
+cat(str_wrap("aaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+         width = 1), "\n")
+
+str_trim(c("a ", "b   ", "c   "), side = "both")
+str_squish(c("a ", " b   ", " c   "))
+
+#this is the opposite of trim of squish
+str_pad(c("a", "b", "c"), width = 5, side = "both", pad = " ")
+
+```
+
+```{r}
+require(htmlwidgets)
+require(stringi)
+alice <- gutenberg_download(11)
+str(alice)
+alice_str <- gutenberg_strip(alice)
+x <- c("apple", "banana", "pear")
+str_view(alice_str[1:100,], "Alice")
+
+alice_str[1:100,]
+
+str_view(c("abc", "def", "fgh"), "[aeiou]", match = T)
+
+stri_length(alice_str)
+stri_flatten(alice_str)
+stri_rand_shuffle(alice_str)
+stri_duplicated(alice_str)
+stri_trim(alice_str)
+
+```
+
+```{r}
+#using forcats to do factors manipulation
+month_levels <-  c(
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+)
+
+y1 <- factor(c("Dec", "Apr", "Jan", "Mar"), levels = month_levels)
+y1
+sort(y1)
+
+gss <- gss_cat
+fct_count(gss$relig, prop = T)
+fct_count(gss$race, prop = T)
+fct_count(gss$marital, prop = T)
+fct_count(gss$rincome, prop = T)
+fct_count(gss$denom, prop = T)
+
+ggplot(gss, aes(sort(relig))) +
+  geom_bar(width = 1) +
+  coord_flip()
+  
+
+ggplot(gss, aes(sort(rincome))) +
+  geom_bar(width = 1) +
+  coord_flip()
+
+relig_summary <- gss %>% 
+  group_by(relig) %>% 
+  summarise(
+    age = mean(age, na.rm = T),
+    tvhours = mean(tvhours, na.rm = T),
+    n = n())
+
+relig_summary %>% 
+  mutate(relig = fct_reorder(relig, tvhours)) %>% 
+  ggplot(aes(tvhours, relig)) +
+  geom_point()
+
+rincome_summary <- gss %>% 
+  group_by(rincome) %>% 
+  summarise(
+    age = mean(age, na.rm = T),
+    tvhours = mean(tvhours, na.rm = T),
+    n = n())
+
+rincome_summary %>% 
+  ggplot(aes(age, fct_relevel(rincome, "Not applicable"))) +
+  geom_point()
+
+by_age <- gss_cat %>%
+  filter(!is.na(age)) %>%
+  count(age, marital) %>%
+  group_by(age) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(by_age, aes(age, prop, colour = marital)) +
+  geom_line(na.rm = TRUE)
+
+ggplot(by_age, aes(age, prop, colour = fct_reorder2(marital, age, prop))) +
+  geom_line() +
+  labs(colour = "marital")
+
+#this plot seems to indicate a trimmed mean is necessary here
+ggplot(gss, aes(tvhours, fct_relevel(rincome, "Not applicable"))) +
+  geom_jitter(size=2, pch ='.')
+
+levels(gss$race)
+
+```
+```{r}
+gss %>% 
+  mutate(partyid = fct_recode(partyid,
+    "Republican, strong"    = "Strong republican",
+    "Republican, weak"      = "Not str republican",
+    "Independent, near rep" = "Ind,near rep",
+    "Independent, near dem" = "Ind,near dem",
+    "Democrat, weak"        = "Not str democrat",
+    "Democrat, strong"      = "Strong democrat")) %>% 
+  count(partyid)
+
+gss_party <- gss %>%
+  mutate(partyid = fct_collapse(partyid,
+    other = c("No answer", "Don't know", "Other party"),
+    rep = c("Strong republican", "Not str republican"),
+    ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+    dem = c("Not str democrat", "Strong democrat"))) %>% 
+  group_by(year, partyid) %>% 
+  summarise(n_party = n()) %>% 
+  ggplot(aes(year, n_party)) +
+    geom_point(size = 2, aes(colour = partyid)) +
+  geom_line(size = 0.25, alpha = 0.2, aes(colour = partyid))
+
+gss_party
+
+fct_count(gss$partyid, prop = T)
+
+levels(gss$rincome)
+
+gss_cat %>%
+  mutate(rincome = fct_collapse(rincome,
+    "Other" = c("No answer", "Don't know", "Refused", "Not applicable"),
+    "$0 to $5K" = c("Lt $1000", "$1000 to 2999", "$3000 to 3999", "$4000 to 4999"),
+    "$5K to $10K" = c("$5000 to 5999", "$6000 to 6999", "$7000 to 7999", "$8000 to 9999"),
+    "$10K to $15K" = c("$10000 - 14999"),
+    "$15K to $20K" = c("$15000 - 19999"),
+    "$20K to $25K" = c("$20000 - 24999"),
+    "25K and over" = c("$25000 or more")
+  )) %>%
+  count(rincome) %>% 
+  ggplot(aes(rincome, n)) +
+  geom_point()
+
+```
+
+```{r}
+#working with the pipe
+require(magrittr)
+# the %$% pipe makes the LHS df available to the RHS
+# the %<>% pipe assigns the lhs dataframe to the funs - no more my_df_1 <- my_df %>% etc
+
+
+iris %>%
+  subset(Sepal.Length > mean(Sepal.Length)) %$%
+  cor(Sepal.Length, Sepal.Width)
+#> [1] 0.3361992
+  
+data.frame(z = rnorm(100)) %$% 
+  ts.plot(z)
+
+```
+
+```{r}
+# stats in a nutshell
+  # there is a stark difference between hypothesis generation and hypothesis confirmation
+  # when you model, you usually want to split the data into the Training set (60%), Query set (20%) and the Test set (20%)
+options(na.action = na.warn)
+
+sim1_model <- lm(y ~ x, data = sim1)
+sim1_model$fitted.values
+
+ggplot(sim1, aes(x, y)) +
+  geom_point() +
+  geom_line(aes(y = sim1_model$fitted.values), color = "blue")
+
+sim1a <- tibble(
+  x = rep(1:10, each = 3),
+  y = x * 1.5 + 6 + rt(length(x), df = 2)
+)
+
+sim1a_model <- lm(y~x, data = sim1a)
+ggplot(sim1a, aes(x, y)) +
+  geom_point() +
+  geom_line(aes(y = sim1a_model$fitted.values), color = "blue")
+
+grid <- sim1 %>% 
+  data_grid(x) %>% 
+  add_predictions(sim1_model)
+
+ggplot(sim1, aes(x)) +
+  geom_point(aes(y = y)) +
+  geom_line(aes(y = pred), data = grid, colour = "red", size = 1)
+
+ggplot(sim1, aes(resid)) +
+  geom_freqpoly(binwidth = 0.5)
+
+ggplot(sim1, aes(x, resid)) +
+  geom_ref_line(h = 0) +
+  geom_point()
+
+sim1_model_loess <- loess(y ~ x , data = sim1)
+
+grid_loess <- modelr::sim1 %>% 
+  data_grid(x) %>% 
+  add_predictions(sim1_model_loess)
+
+ggplot(sim1, aes(x)) +
+  geom_point(aes(y = y)) +
+  geom_line(aes(y = pred), data = grid, colour = "red", size = 1) +
+  geom_line(aes(y = pred), data = grid_loess, colour = "purple")
+
+sim1 %>% 
+  add_predictions(sim1_model) %>% 
+  gather_predictions(sim1_model)
+
+#add prediction can pass any numerical vector from model to the df
+add_predictions(modelr::sim1, sim1_model)
+add_predictions(modelr::sim1, sim1_model, var = "residuals")
+#gather adds a model col
+gather_predictions(modelr::sim1, sim1_model)
+
+#for residuals, freq_polygon gives more granularity so we can see if model picked up specific points in data
+#meanwhile, geom_point gives a picture to check the normality and E(e) = 0 assumptions
+
+model_matrix(sim1, y~x)
+
+ggplot(sim2) +
+  geom_point(aes(x, y))
+
+mod2 <- lm(y~x, data = sim2)
+
+grid_2 <- sim2 %>% 
+  data_grid(x) %>% 
+  add_predictions(mod2)
+
+ggplot(sim2, aes(x)) +
+  geom_point(aes(y = y)) +
+  geom_point(aes(y = pred), data = grid_2, colour = "blue", size = 4, alpha = 0.5)
+
+ggplot(sim3, aes(x1, y)) +
+  geom_point(aes(colour = x2))
+
+mod2 <- lm(y ~ x1 + x2, data = sim3)
+mod3 <- lm(y ~ x1 * x2, data = sim3)
+
+grid_3 <- sim3 %>% 
+  data_grid(x1, x2) %>% 
+  gather_predictions(mod2, mod3)
+
+ggplot(sim3, aes(x1, y, colour = x2)) +
+  geom_point() +
+  geom_line(data = grid_3, aes(y = pred)) +
+  facet_wrap(~ model)
+
+sim3 <- sim3 %>% 
+  gather_residuals(mod2, mod3)
+
+ggplot(sim3, aes(x1, resid, colour = x2)) +
+  geom_point() +
+  geom_ref_line(h = 0, size = 1) +
+  facet_grid(model ~ x2)
+
+mod4 <- lm(y ~ x1 + x2, data = sim4)
+mod5 <- lm(y ~ x1 * x2, data = sim4)
+
+grid_4 <- NULL
+
+grid_4 <- sim4 %>% 
+  data_grid(
+    x1 = seq_range(x1, 5),
+    x2 = seq_range(x2, 5)
+  ) %>% 
+  gather_predictions(mod4, mod5)
+#gather residuals does not comply to the pipe in the same way gather_predictions does
+
+ggplot(grid_4, aes(x1, x2)) +
+  geom_tile(aes(fill = pred)) +
+  facet_wrap(~model)
+
+ggplot(grid_4, aes(x1, pred, colour = x2, group = x2)) +
+  geom_line() +
+  facet_wrap(~model)
+
+ggplot(grid_4, aes(x2, pred, colour = x1, group = x1)) +
+  geom_line() +
+  facet_wrap(~model)
+
+require(splines)
+sim5 <- tibble(
+  x = seq(0, 3.5 * pi, length = 50),
+  y = 4 * sin(x) + rnorm(length(x)))
+
+mod6 <- lm(y ~ ns(x, 1), data = sim5)
+mod7 <- lm(y ~ ns(x, 2), data = sim5)
+mod8 <- lm(y ~ ns(x, 3), data = sim5)
+mod9 <- lm(y ~ ns(x, 4), data = sim5)
+mod9a <- lm(y ~ ns(x, 5), data = sim5)
+modlm <- lm(y ~ x, data = sim5) 
+
+grid_5 <- sim5 %>% 
+  data_grid(x = seq_range(x, n = 50, expand = 0.1)) %>% 
+  gather_predictions(mod6, mod7, mod8, mod9, mod9a, .pred = "y")
+
+grid_5_lm <- sim5 %>% 
+  data_grid(x = seq_range(x, n = 50)) %>% 
+  gather_predictions(modlm, .pred = "y")
+
+ggplot(sim5, aes(x, y)) + 
+  geom_point() +
+  geom_line(data = grid_5, colour = "red", size = 1) +
+  geom_line(data = grid_5_lm, colour = "blue", size = .5) +
+  facet_wrap(~ model)
+
+#behind the black box
+model_matrix(sim3, y ~ x1 + x2)
+model_matrix(sim3, y ~ x1 * x2)
+
+model_matrix(sim4, y ~ x1 + x2)
+model_matrix(sim4, y ~ x1 * x2)
+
+```
+
+```{r}
+ggplot(diamonds, aes(cut, price)) + geom_boxplot()
+ggplot(diamonds, aes(color, price)) + geom_boxplot()
+ggplot(diamonds, aes(clarity, price)) + geom_boxplot()
+
+ggplot(diamonds, aes(carat, price)) +
+  geom_hex(bins = 50)
+
+diamonds2 <- diamonds %>%   
+  filter(carat <= 2.5) %>% 
+  mutate(lprice = log2(price), lcarat = log2(carat))
+
+ggplot(diamonds2, aes(lcarat, lprice)) +
+  geom_hex(bins = 50)
+
+```
+
+
+```{r}
+batting <- as_tibble(Lahman::Batting)
+
+batters <- batting %>% 
+  group_by(playerID) %>% 
+  summarise(
+    ba = sum(H, na.rm = T) / sum(AB, na.rm = T),
+    ab = sum(AB, na.rm = T)
+  ) %>% 
+  filter (ab >100)
+  
+batters %>% 
+  ggvis(~ab, ~ba) %>% 
+  layer_points(size := 5) %>% 
+  layer_smooths(se = F, stroke = "blue") %>% 
+  layer_model_predictions(model = "lm", se = T, stroke = "red") 
+
+```
+
+```{r}
+batters %>% 
+  arrange(desc(ba))
+```
+
+```{r}
+career <- Batting %>%
+  filter(AB > 0) %>%
+  anti_join(Pitching, by = "playerID") %>%
+  group_by(playerID) %>%
+  summarize(H = sum(H), AB = sum(AB)) %>%
+  mutate(average = H / AB)
+
+# use names along with the player IDs
+career <- Master %>%
+  tbl_df() %>%
+  select(playerID, nameFirst, nameLast) %>%
+  unite(name, nameFirst, nameLast, sep = " ") %>%
+  inner_join(career, by = "playerID") %>%
+  select(-playerID)
+
+career
+
+career %>% 
+  arrange(desc(average)) 
+
+career %>% 
+  arrange(average, desc(average))
+ 
+career_filtr <- filter(career, AB >= 500)
+
+#empirical mean and variance: METHOD 1 (raw computation)
+
+mu = mean(career_filtr$average)
+var = var(career_filtr$average)
+
+estBetaParams <- function(mu, var) {
+  alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+  beta <- alpha * (1 / mu - 1)
+  return(params = list(alpha = alpha, beta = beta))
+}
+
+estBetaParams(mu, var)
+A0 <- estBetaParams(mu, var)[1]
+B0 <- estBetaParams(mu, var)[2]
+A0; B0
+
+#empirical mean and varianceL METHOD 2 (fitdistr)
+
+m <- MASS::fitdistr(career_filtr$average, dbeta,
+                    start = list(shape1 = 1, shape2 = 10))
+
+alpha0 <- m$estimate[1]
+beta0 <- m$estimate[2]
+
+
+career_filtr %>% 
+  ggvis(~average) %>% 
+  layer_histograms()
+
+#using the prior
+career_eb <- mutate(career,
+      eb_estimate = (H + alpha0) / (AB + alpha0 + beta0)
+      )
+
+career_eb %>% 
+  ggvis(~eb_estimate)
+
+career_eb %>% 
+  ggvis(~AB, ~eb_estimate) %>% 
+  layer_points(size := 5) %>% 
+  layer_smooths(se = F, stroke = "blue") %>% 
+  layer_model_predictions(model = "lm", se = T, stroke = "red")
+
+head(arrange(career_eb, desc(eb_estimate)))
+
+tail(arrange(career_eb, desc(eb_estimate)))
+
+#using MLE
+ myParam<- function(alpha, beta) {
+  -sum(dbetabinom.ab(career$H, career$AB, alpha, beta, log = TRUE))
+}
+
+m <- mle(myParam, start = list(alpha = 1, beta = 10), method = "L-BFGS-B")
+coef(m)
+A_0 <- coef(m)[1]
+B_0 <- coef(m) [2]
+
+career_true_est <- mutate(career,
+                          eb_new_est = (H + A_0) / (AB + A_0 + B_0)
+                          )
+
+career_true_est %>% 
+  ggvis(~eb_new_est)
+
+career_true_est %>% 
+  ggvis(~AB, ~eb_new_est) %>% 
+  layer_points(size := 5) %>% 
+  layer_smooths(se = F, stroke = "blue") %>% 
+  layer_model_predictions(model = "lm", se = T, stroke = "red")
+
+head(arrange(career_true_est, desc(eb_new_est)))
+
+tail(arrange(career_true_est, desc(eb_new_est)))
+
+
+```
+
+~~side project over
+
+```{r}
+not_cancelled %>% 
+  count(dest) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+daily <- group_by(flights, year, month, day)
+(per_day   <- summarise(daily, flights = n())) %>% 
+  arrange(desc(flights))
+(per_month <- summarise(per_day, flights = sum(flights))) %>% 
+  arrange(desc(flights))
+(per_year <- summarise(per_month, flights = sum(flights)))
+```
+
+```{r}
+flights %>% 
+  mutate(tot_delay = dep_delay + arr_delay) %>% 
+  ggvis(~dep_time, ~tot_delay) %>% 
+  layer_bars()
+
+```
+
+
+GGVIS (NEW KID ON THE BLOCK)
+```{r}
+delays %>% ggvis(~dist, ~delay) %>% 
+  layer_points() %>% 
+  layer_smooths()
+```
+
+```{r}
+mtcars %>% ggvis(~mpg)
+mtcars %>% ggvis(~mpg) %>% layer_guess()
+
+mtcars %>% ggvis(~mpg, ~wt) %>% 
+  layer_points()
+```
+
