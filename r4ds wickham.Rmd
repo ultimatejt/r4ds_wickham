@@ -393,6 +393,39 @@ delays %>%
   ggplot(mapping = aes(x = n, y = delay)) + 
     geom_point(alpha = 1/10)
 ```
+```{r}
+daily <- group_by(flights, year, month, day)
+(per_day   <- summarise(daily, flights = n())) %>% 
+  arrange(desc(flights))
+(per_month <- summarise(per_day, flights = sum(flights))) %>% 
+  arrange(desc(flights))
+(per_year <- summarise(per_month, flights = sum(flights)))
+```
+
+```{r}
+flights %>% 
+  mutate(tot_delay = dep_delay + arr_delay) %>% 
+  ggvis(~dep_time, ~tot_delay) %>% 
+  layer_bars()
+
+```
+
+
+GGVIS (NEW KID ON THE BLOCK)
+```{r}
+delays %>% ggvis(~dist, ~delay) %>% 
+  layer_points() %>% 
+  layer_smooths()
+```
+
+```{r}
+mtcars %>% ggvis(~mpg)
+mtcars %>% ggvis(~mpg) %>% layer_guess()
+
+mtcars %>% ggvis(~mpg, ~wt) %>% 
+  layer_points()
+```
+
 ### Ch 10: Tibbles
 ```{r}
 as_tibble(iris)
@@ -436,7 +469,6 @@ table5 %>%
   unite(new, century, year, sep = "")
 
 ```
-
 ```{r}
 data("who")
 
@@ -631,15 +663,16 @@ ggplot(flights_for_plane_age, mapping = aes(x = year.planes, y = arr_delay)) +
   geom_smooth(se = F)
 
 flights_and_weather <- flights %>% 
-  left_join(weather)
+  left_join(weather) %>% 
+  select_if(is.numeric) %>% 
+  select(-c("year", "month", "day", "hour", "minute", "flight", "distance"), -contains("time"))
+  
 
 ggplot(flights_and_weather, aes(x=arr_delay, y=humid)) + 
   geom_point(size = .5)
 
 ggplot(flights_and_weather, aes(x=arr_delay, y=humid)) + 
   geom_point(size = .5)
-
-#ggpairs(flights_and_weather[, c(7, 9, 20, 22, 26, 27, 28)])
 
 flights_for_tailnum <- flights_2 %>% 
   left_join(planes, by = "tailnum", suffix = c(".flights", ".planes")) 
@@ -659,9 +692,6 @@ flights_for_tailnum %>%
   group_by(tailnum) %>% 
   count(tailnum) %>% 
   mutate(sum(n))
-  
-  count(tailnum.flights) %>% 
-  arrange(n, desc(n))
 
 flights %>% 
   mutate(day_number = lubridate::yday(time_hour)) %>% 
@@ -787,11 +817,11 @@ alice_str[1:100,]
 
 str_view(c("abc", "def", "fgh"), "[aeiou]", match = T)
 
-stri_length(alice_str)
-stri_flatten(alice_str)
-stri_rand_shuffle(alice_str)
-stri_duplicated(alice_str)
-stri_trim(alice_str)
+# stri_length(alice_str)
+# stri_flatten(alice_str)
+# stri_rand_shuffle(alice_str)
+# stri_duplicated(alice_str)
+# stri_trim(alice_str)
 
 ```
 
@@ -958,12 +988,12 @@ ggplot(sim1, aes(x)) +
   geom_point(aes(y = y)) +
   geom_line(aes(y = pred), data = grid, colour = "red", size = 1)
 
-ggplot(sim1, aes(resid)) +
-  geom_freqpoly(binwidth = 0.5)
+# ggplot(sim1, aes(resid)) +
+#   geom_freqpoly(binwidth = 0.5)
 
-ggplot(sim1, aes(x, resid)) +
-  geom_ref_line(h = 0) +
-  geom_point()
+# ggplot(sim1, aes(x, resid)) +
+#   geom_ref_line(h = 0) +
+#   geom_point()
 
 sim1_model_loess <- loess(y ~ x , data = sim1)
 
@@ -1233,43 +1263,3 @@ tail(arrange(career_true_est, desc(eb_new_est)))
 ```
 
 ~~side project over
-
-```{r}
-not_cancelled %>% 
-  count(dest) %>% 
-  arrange(desc(n))
-```
-
-```{r}
-daily <- group_by(flights, year, month, day)
-(per_day   <- summarise(daily, flights = n())) %>% 
-  arrange(desc(flights))
-(per_month <- summarise(per_day, flights = sum(flights))) %>% 
-  arrange(desc(flights))
-(per_year <- summarise(per_month, flights = sum(flights)))
-```
-
-```{r}
-flights %>% 
-  mutate(tot_delay = dep_delay + arr_delay) %>% 
-  ggvis(~dep_time, ~tot_delay) %>% 
-  layer_bars()
-
-```
-
-
-GGVIS (NEW KID ON THE BLOCK)
-```{r}
-delays %>% ggvis(~dist, ~delay) %>% 
-  layer_points() %>% 
-  layer_smooths()
-```
-
-```{r}
-mtcars %>% ggvis(~mpg)
-mtcars %>% ggvis(~mpg) %>% layer_guess()
-
-mtcars %>% ggvis(~mpg, ~wt) %>% 
-  layer_points()
-```
-
